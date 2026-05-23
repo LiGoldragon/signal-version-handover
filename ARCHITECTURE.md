@@ -12,8 +12,11 @@ without losing writes. The contract is carried over a per-daemon
 private upgrade socket (one socket per version, mode `0600`, version
 suffix in the path). Six operations cover marker discovery, readiness,
 finalization, mirrored writes, divergence recording, and recovery from
-failure. The crate is pure wire vocabulary — no daemon code, no
-runtime state machine, no migration logic.
+failure. `MirrorPayload` carries an **unspecified raw payload**;
+receivers store the raw bytes in a separate container outside the
+typed database, then reverse-project into typed records via
+`version-projection`. The crate is pure wire vocabulary — no daemon
+code, no runtime state machine, no migration logic.
 
 ## Components
 
@@ -96,9 +99,64 @@ signal_channel! {
 
 `HandoverMarker` carries the load-bearing durability shape — schema
 hash, sema-engine commit sequence, write counter, last record id,
-daemon-stamped date/time. `MirrorPayload` today carries record bytes
-plus a `RecordKind` discriminant; the typed-enum alternative is named
-in `version-projection`'s possible-features section.
+daemon-stamped date/time. `MirrorPayload` carries an **unspecified
+raw payload** — raw bytes plus a `RecordKind` discriminant; the
+wire remains version-pair-blind and receiver daemons decode through the
+appropriate versioned contract library.
+
+## Mirror payload — raw bytes in a separate container
+
+`MirrorPayload` carries raw bytes whose type signature is
+**"unspecified raw payload"**. The contract here owns only the wire
+shape; the receiving daemon owns the storage discipline. That
+discipline has one load-bearing rule:
+
+**Raw payload bytes MUST land in a SEPARATE container outside the
+receiver's typed database.** The typed database (e.g. the receiver's
+sema-engine-managed redb) only ever accepts records that have already
+been reverse-projected through `version-projection` into the
+receiver's own typed shape. Un-incorporated bytes never pollute the
+typed database — they live in a raw-bytes side container until
+projection runs.
+
+```mermaid
+flowchart LR
+    Next["next-version daemon"]
+    Wire["Mirror operation<br/>(raw bytes + RecordKind)"]
+    RawContainer[("raw-payload container<br/>SEPARATE from typed database")]
+    Projection["version-projection<br/>(reverse-project to receiver shape)"]
+    TypedDatabase[("typed database<br/>(sema-engine redb)<br/>typed records only")]
+    Current["current-version daemon"]
+
+    Next -->|"private upgrade socket"| Wire
+    Wire -->|"received by"| Current
+    Current -->|"step 1, persist raw bytes"| RawContainer
+    RawContainer -->|"step 2, decode + reverse-project"| Projection
+    Projection -->|"step 3a, representable"| TypedDatabase
+    Projection -.->|"step 3b, non-representable"| Divergence["Divergence operation<br/>(typed in this contract)"]
+
+    style RawContainer fill:#fee
+    style TypedDatabase fill:#efe
+```
+
+Container scope is open — per-component-version-pair or
+per-handover-session both fit the rule. Receivers MAY choose either
+granularity; the contract here is indifferent so long as the
+separation from the typed database is maintained. Implementations
+should record the choice in the receiver daemon's ARCHITECTURE.
+
+The receiver-side handler unpacks the raw bytes during the handover
+window, applies reverse-projection through `version-projection`, then
+writes the resulting typed records to the typed database. A
+non-representable payload becomes a typed `Divergence` operation on
+this wire — never a silent drop and never a raw row in the typed
+database.
+
+This discipline keeps two invariants together:
+- the contract crate stays version-pair-blind (no signal-X-per-pair
+  variants leak in)
+- the typed database stays clean (no untyped material accumulates,
+  even transiently)
 
 ## Boundary
 
@@ -144,8 +202,18 @@ same UID (the persona-owner identity).
 - Operations and replies round-trip through rkyv and NOTA inside
   `tests/`.
 - The crate does not own administrative authority verbs
-  (force-flip / rollback / quarantine) — those belong to a separate
-  owner contract listed under Possible features.
+  (force-flip / rollback / quarantine) — those belong to
+  `owner-signal-version-handover`.
+- `MirrorPayload` carries an unspecified raw payload (raw bytes plus
+  a `RecordKind` discriminant). The contract does not type the
+  payload per version pair; the receiver decodes via the appropriate
+  signal-X library and applies reverse-projection through
+  `version-projection`.
+- Receiver-side storage discipline: raw bytes land in a SEPARATE
+  container outside the receiver's typed database. Only records
+  produced by reverse-projection enter the typed database. The
+  contract does not own the container's on-disk shape, but it does
+  require the separation.
 
 ## Non-Goals
 
@@ -165,19 +233,6 @@ same UID (the persona-owner identity).
 open question; moves to the cemented body when settled; retires when
 ruled out.*
 
-- **Companion owner contract `owner-signal-version-handover`.**
-  Administrative authority verbs (`ForceFlip` to override the
-  protocol, `Rollback` to revert a recent handover, `Quarantine` to
-  mark a daemon ineligible for upgrade) belong on a separate
-  owner-only contract. Open question: separate triad contract beside
-  this one, or absorbed into the persona engine's own owner contract.
-  Lean: defer until the persona engine's upgrade-orchestration owner
-  surface is sketched.
-- **Typed `Mirror` payload.** Today the wire carries record bytes
-  plus a `RecordKind` discriminant. A typed enum holding the archived
-  value would couple the contract crate to every signal-X crate; the
-  bytes shape keeps the contract free of that dependency. Lean:
-  bytes until a second component handover lands.
 - **Read-during-handover semantics on the contract surface.** Today
   the wire only models writes (Mirror + Divergence). Reads during
   HandoverMode are handled by the daemon's own ordinary contract;
