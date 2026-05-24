@@ -1,0 +1,40 @@
+{}
+
+[
+  (Marker [Ask])
+  (Ready [Report])
+  (Completed [Report])
+  (Recover [Request])
+  (Mirror [Payload])
+  (Divergence [Payload])
+]
+
+[]
+
+[]
+
+{
+  Marker [(Ask Ask)]
+  Ready [(Report Report)]
+  Completed [(Report Report)]
+  Recover [(Request Request)]
+  Mirror [(Payload Payload)]
+  Divergence [(Payload Payload)]
+  Ask (Text)
+  Report (Text)
+  Request (Text)
+  Payload (Text)
+  ForceFlip (Text)
+  Rollback (Text)
+  Target (Text)
+  Text (String)
+  Identifier (u64)
+  Name (String)
+  Path (String)
+  Status [Concept Active Retired]
+}
+
+[
+  (Version 0 1)
+  (Status Concept)
+]
