@@ -1,4 +1,4 @@
-use nota_codec::{NotaDecode, NotaEncode};
+use nota_next::{NotaEncode, NotaSource};
 use signal_frame::{
     ExchangeFrame, ExchangeFrameBody, ExchangeIdentifier, ExchangeLane, LaneSequence,
     RequestPayload, SessionEpoch,
@@ -26,9 +26,7 @@ fn marker() -> HandoverMarker {
 }
 
 fn encode<T: NotaEncode>(value: &T) -> String {
-    let mut encoder = nota_codec::Encoder::new();
-    value.encode(&mut encoder).expect("encode");
-    encoder.into_string()
+    value.to_nota()
 }
 
 #[test]
@@ -51,8 +49,7 @@ fn marker_reply_round_trips_through_nota() {
 
     assert!(text.starts_with("(HandoverMarker (persona-spirit "));
 
-    let mut decoder = nota_codec::Decoder::new(&text);
-    let decoded = Reply::decode(&mut decoder).expect("decode");
+    let decoded = NotaSource::new(&text).parse::<Reply>().expect("decode");
     assert_eq!(decoded, reply);
 }
 
@@ -80,8 +77,10 @@ fn divergence_reason_is_typed_not_a_string() {
     let text = encode(&reply);
 
     assert!(text.contains("CommitSequenceAdvanced"));
-    let mut decoder = nota_codec::Decoder::new(&text);
-    assert_eq!(Reply::decode(&mut decoder).expect("decode"), reply);
+    assert_eq!(
+        NotaSource::new(&text).parse::<Reply>().expect("decode"),
+        reply
+    );
 }
 
 #[test]
