@@ -11,9 +11,9 @@ version to its next version without losing writes. Companion to
 
 This file carries only the intent that is FOR this
 `signal-version-handover` contract. Workspace-shape intent stays in the
-primary workspace `primary/INTENT.md`. Owner-only administrative
+primary workspace `primary/INTENT.md`. Meta administrative
 authority intent (force-flip / rollback / quarantine) stays in
-`owner-signal-version-handover/INTENT.md`.
+`meta-signal-version-handover/INTENT.md`.
 
 ## Why this repo exists
 
@@ -79,7 +79,7 @@ typed database stays clean.
   machine, no migration logic.
 - The crate does not own administrative authority verbs (force-flip /
   rollback / quarantine) — those live in
-  `owner-signal-version-handover`.
+  `meta-signal-version-handover`.
 - The crate does not depend on `version-projection` at the trait level;
   daemons that compose the two import both.
 - The crate does not depend on any `signal-persona-*` contract.
@@ -109,7 +109,7 @@ This crate does not own:
 
 - `ARCHITECTURE.md` — protocol sequence, the marker durability shape,
   the mirror-payload container discipline, and boundary diagram.
-- `../owner-signal-version-handover/ARCHITECTURE.md` — owner-only
+- `../meta-signal-version-handover/ARCHITECTURE.md` — meta
   administrative authority sibling.
 - `../version-projection/ARCHITECTURE.md` — projection library for
   reverse-projecting mirror bytes.

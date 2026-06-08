@@ -40,7 +40,7 @@ socket of two sibling daemons (current version ↔ next version):
 |---|---|---|
 | `AskHandoverMarker` | next → current | next asks current for the schema hash + commit sequence + last record id |
 | `ReadyToHandover` | next → current | next tells current it has copied state up to a recorded marker |
-| `HandoverCompleted` | next → current | next confirms public traffic has moved; current closes ordinary and owner sockets |
+| `HandoverCompleted` | next -> current | next confirms public traffic has moved; current closes ordinary and meta sockets |
 | `Mirror` | next → current | next forwards a write back to current's database via reverse projection |
 | `Divergence` | next → current | next records a write that reverse projection cannot represent |
 | `RecoverFromFailure` | either | reconciliation after a failed transition |
@@ -66,7 +66,7 @@ sequenceDiagram
         Note over Current: HandoverMode — public writes paused
         Note over Next: drain deltas N+1..N'
         Next->>Current: HandoverCompleted
-        Current->>Current: close ordinary + owner sockets
+        Current->>Current: close ordinary + meta sockets
     else marker drifted
         Current-->>Next: HandoverRejected (commit-sequence drift)
         Note over Next: re-copy from new marker
@@ -203,7 +203,7 @@ same UID (the persona-owner identity).
   `tests/`.
 - The crate does not own administrative authority verbs
   (force-flip / rollback / quarantine) — those belong to
-  `owner-signal-version-handover`.
+  `meta-signal-version-handover`.
 - `MirrorPayload` carries an unspecified raw payload (raw bytes plus
   a `RecordKind` discriminant). The contract does not type the
   payload per version pair; the receiver decodes via the appropriate
