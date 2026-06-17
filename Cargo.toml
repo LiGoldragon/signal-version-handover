@@ -12,6 +12,15 @@ publish      = false
 name = "signal_version_handover"
 path = "src/lib.rs"
 
+[features]
+default   = []
+nota-text = ["signal-frame/nota-text"]
+
+[[test]]
+name = "round_trip"
+path = "tests/round_trip.rs"
+required-features = ["nota-text"]
+
 [dependencies]
 signal-frame       = { git = "https://github.com/LiGoldragon/signal-frame.git", branch = "main" }
 version-projection = { git = "https://github.com/LiGoldragon/version-projection.git", branch = "main" }

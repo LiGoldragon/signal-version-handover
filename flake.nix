@@ -40,6 +40,10 @@
         checks = {
           build = craneLib.cargoBuild (commonArguments // { inherit cargoArtifacts; });
           test = craneLib.cargoTest (commonArguments // { inherit cargoArtifacts; });
+          test-nota-text = craneLib.cargoTest (commonArguments // {
+            inherit cargoArtifacts;
+            cargoTestExtraArgs = "--features nota-text --all-targets";
+          });
           doc = craneLib.cargoDoc (commonArguments // {
             inherit cargoArtifacts;
             RUSTDOCFLAGS = "-D warnings";
@@ -48,6 +52,10 @@
           clippy = craneLib.cargoClippy (commonArguments // {
             inherit cargoArtifacts;
             cargoClippyExtraArgs = "--all-targets -- -D warnings";
+          });
+          clippy-nota-text = craneLib.cargoClippy (commonArguments // {
+            inherit cargoArtifacts;
+            cargoClippyExtraArgs = "--features nota-text --all-targets -- -D warnings";
           });
         };
         devShells.default = pkgs.mkShell {
