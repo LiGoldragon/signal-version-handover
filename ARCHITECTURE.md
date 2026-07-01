@@ -3,6 +3,14 @@
 *Private upgrade contract carrying the daemon-to-daemon handover
 protocol between two versions of one component.*
 
+## Direction
+
+`signal-version-handover` is the **private daemon-to-daemon upgrade wire contract** for the version-handover protocol. It owns the typed wire vocabulary for the protocol two sibling daemons run — current version ↔ next version — to migrate the public surface across a schema change without losing writes. The wire is carried over a per-daemon private upgrade socket (mode `0600`, version suffix in the path; both daemons run under the same UID).
+
+`MirrorPayload` carries an **unspecified raw payload** — raw bytes plus a `RecordKind` discriminant — so the contract stays version-pair-blind. The load-bearing storage discipline: raw payload bytes MUST land in a SEPARATE container outside the receiver's typed database. The typed database only ever accepts records already reverse-projected through `version-projection` into the receiver's own shape. A non-representable payload becomes a typed `Divergence` operation — never a silent drop and never a raw row in the typed database.
+
+The crate does not own atomic-write coordination, traffic-flip decisions, write-freeze enforcement, divergence reconciliation policy, per-version record transforms, or schema projection logic. Administrative authority verbs (force-flip, rollback, quarantine) live in `meta-signal-version-handover`.
+
 ## TL;DR
 
 `signal-version-handover` is a signal contract crate. It owns the typed
