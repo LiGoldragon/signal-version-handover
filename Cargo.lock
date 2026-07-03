@@ -122,9 +122,9 @@ dependencies = [
 ]
 
 [[package]]
-name = "nota-next"
+name = "nota"
 version = "0.5.0"
-source = "git+https://github.com/LiGoldragon/nota-next.git?branch=main#7426a6a7d60d6e37ac40df4ecc98717af58129f8"
+source = "git+https://github.com/LiGoldragon/nota.git?branch=main#7426a6a7d60d6e37ac40df4ecc98717af58129f8"
 dependencies = [
  "nota-next-derive",
  "rkyv",
@@ -133,7 +133,7 @@ dependencies = [
 [[package]]
 name = "nota-next-derive"
 version = "0.3.0"
-source = "git+https://github.com/LiGoldragon/nota-next.git?branch=main#7426a6a7d60d6e37ac40df4ecc98717af58129f8"
+source = "git+https://github.com/LiGoldragon/nota.git?branch=main#7426a6a7d60d6e37ac40df4ecc98717af58129f8"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -255,7 +255,7 @@ name = "signal-frame"
 version = "0.2.1"
 source = "git+https://github.com/LiGoldragon/signal-frame.git?branch=main#e2eae5c28dac47eea6c4c641b60c4fd27bb547d8"
 dependencies = [
- "nota-next",
+ "nota",
  "paste",
  "rkyv",
  "signal-frame-macros",
@@ -276,7 +276,7 @@ dependencies = [
 name = "signal-version-handover"
 version = "0.1.0"
 dependencies = [
- "nota-next",
+ "nota",
  "rkyv",
  "signal-frame",
  "thiserror",
@@ -362,7 +362,7 @@ name = "version-projection"
 version = "0.1.0"
 source = "git+https://github.com/LiGoldragon/version-projection.git?branch=main#1a1eeab4adf2c53e3bb8ba6de46303c256f39e23"
 dependencies = [
- "nota-next",
+ "nota",
  "rkyv",
  "thiserror",
 ]

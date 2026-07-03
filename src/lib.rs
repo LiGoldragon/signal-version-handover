@@ -5,7 +5,7 @@
 //! divergence, and recovery records. It does not own runtime socket policy or
 //! migration execution.
 
-use nota_next::{Block, Delimiter, NotaBlock, NotaDecode, NotaDecodeError, NotaEncode};
+use nota::{Block, Delimiter, NotaBlock, NotaDecode, NotaDecodeError, NotaEncode};
 use rkyv::{Archive, Deserialize as RkyvDeserialize, Serialize as RkyvSerialize};
 use signal_frame::signal_channel;
 use version_projection::{ComponentName, ContractVersion, RecordKind};
