@@ -22,8 +22,8 @@ path = "tests/round_trip.rs"
 required-features = ["nota-text"]
 
 [dependencies]
-signal-frame       = { git = "https://github.com/LiGoldragon/signal-frame.git", branch = "drop-next" }
-version-projection = { git = "https://github.com/LiGoldragon/version-projection.git", branch = "drop-next", features = ["nota-text"] }
+signal-frame       = { git = "https://github.com/LiGoldragon/signal-frame.git", branch = "main" }
+version-projection = { git = "https://github.com/LiGoldragon/version-projection.git", branch = "main", features = ["nota-text"] }
 nota          = { git = "https://github.com/LiGoldragon/nota.git", branch = "main" }
 rkyv               = { version = "0.8", default-features = false, features = ["std", "bytecheck", "little_endian", "pointer_width_32", "unaligned"] }
 thiserror          = "2"
