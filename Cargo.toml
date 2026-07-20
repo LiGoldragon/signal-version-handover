@@ -1,6 +1,6 @@
 [package]
 name         = "signal-version-handover"
-version      = "0.1.0"
+version      = "0.1.1"
 edition      = "2024"
 rust-version = "1.85"
 license      = "MIT OR Apache-2.0"
@@ -22,9 +22,9 @@ path = "tests/round_trip.rs"
 required-features = ["nota-text"]
 
 [dependencies]
-signal-frame       = { git = "https://github.com/LiGoldragon/signal-frame.git", branch = "main" }
-version-projection = { git = "https://github.com/LiGoldragon/version-projection.git", branch = "main", features = ["nota-text"] }
-nota          = { git = "https://github.com/LiGoldragon/nota.git", branch = "main" }
+signal-frame       = { git = "https://github.com/LiGoldragon/signal-frame.git", rev = "91e675298b79ec2aab2e0714a5e3e5b2d6d07339" }
+version-projection = { git = "https://github.com/LiGoldragon/version-projection.git", rev = "97c3a5ca03fe08936bb45d95b486ce8a5578ffb1", features = ["nota-text"] }
+nota          = { git = "https://github.com/LiGoldragon/nota.git", rev = "ce7c564de0a0518eaa1938d55dccc460a67cadb4" }
 rkyv               = { version = "0.8", default-features = false, features = ["std", "bytecheck", "little_endian", "pointer_width_32", "unaligned"] }
 thiserror          = "2"
 

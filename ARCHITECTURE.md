@@ -209,6 +209,9 @@ same UID (the persona-owner identity).
   date/time.
 - Operations and replies round-trip through rkyv and NOTA inside
   `tests/`.
+- The `VersionHandoverPins` compatibility release pins the full
+  handover wire chain to the canonical legacy Nota 0.5 family. It is a
+  wire-contract release, not a Nota 0.9 presentation-family surface.
 - The crate does not own administrative authority verbs
   (force-flip / rollback / quarantine) — those belong to
   `meta-signal-version-handover`.
